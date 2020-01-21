@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='mserialize',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0bstate.proto\x12\nmserialize\"\"\n\x0blog_message\x12\x13\n\x0blog_message\x18\x01 \x01(\t\"\xa6\x01\n\x05State\x12\n\n\x02id\x18\x01 \x01(\x05\x12)\n\x04type\x18\x02 \x01(\x0e\x32\x1b.mserialize.State.StateType\x12\x0e\n\x06reason\x18\x03 \x01(\t\x12\x15\n\rnum_executing\x18\x04 \x01(\x05\x12\x11\n\twait_time\x18\x05 \x01(\x05\",\n\tStateType\x12\t\n\x05READY\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\n\n\x06KILLED\x10\x02\"-\n\x08StateSet\x12!\n\x06states\x18\x01 \x03(\x0b\x32\x11.mserialize.Stateb\x06proto3')
+  serialized_pb=_b('\n\x0bstate.proto\x12\nmserialize\"\x1d\n\nLogMessage\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\"\xa6\x01\n\x05State\x12\n\n\x02id\x18\x01 \x01(\x05\x12)\n\x04type\x18\x02 \x01(\x0e\x32\x1b.mserialize.State.StateType\x12\x0e\n\x06reason\x18\x03 \x01(\t\x12\x15\n\rnum_executing\x18\x04 \x01(\x05\x12\x11\n\twait_time\x18\x05 \x01(\x05\",\n\tStateType\x12\t\n\x05READY\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\n\n\x06KILLED\x10\x02\"-\n\x08StateSet\x12!\n\x06states\x18\x01 \x03(\x0b\x32\x11.mserialize.Stateb\x06proto3')
 )
 
 
@@ -45,21 +45,21 @@ _STATE_STATETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=186,
-  serialized_end=230,
+  serialized_start=181,
+  serialized_end=225,
 )
 _sym_db.RegisterEnumDescriptor(_STATE_STATETYPE)
 
 
-_LOG_MESSAGE = _descriptor.Descriptor(
-  name='log_message',
-  full_name='mserialize.log_message',
+_LOGMESSAGE = _descriptor.Descriptor(
+  name='LogMessage',
+  full_name='mserialize.LogMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='log_message', full_name='mserialize.log_message.log_message', index=0,
+      name='content', full_name='mserialize.LogMessage.content', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -78,7 +78,7 @@ _LOG_MESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=27,
-  serialized_end=61,
+  serialized_end=56,
 )
 
 
@@ -137,8 +137,8 @@ _STATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=64,
-  serialized_end=230,
+  serialized_start=59,
+  serialized_end=225,
 )
 
 
@@ -168,24 +168,24 @@ _STATESET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=232,
-  serialized_end=277,
+  serialized_start=227,
+  serialized_end=272,
 )
 
 _STATE.fields_by_name['type'].enum_type = _STATE_STATETYPE
 _STATE_STATETYPE.containing_type = _STATE
 _STATESET.fields_by_name['states'].message_type = _STATE
-DESCRIPTOR.message_types_by_name['log_message'] = _LOG_MESSAGE
+DESCRIPTOR.message_types_by_name['LogMessage'] = _LOGMESSAGE
 DESCRIPTOR.message_types_by_name['State'] = _STATE
 DESCRIPTOR.message_types_by_name['StateSet'] = _STATESET
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-log_message = _reflection.GeneratedProtocolMessageType('log_message', (_message.Message,), dict(
-  DESCRIPTOR = _LOG_MESSAGE,
+LogMessage = _reflection.GeneratedProtocolMessageType('LogMessage', (_message.Message,), dict(
+  DESCRIPTOR = _LOGMESSAGE,
   __module__ = 'state_pb2'
-  # @@protoc_insertion_point(class_scope:mserialize.log_message)
+  # @@protoc_insertion_point(class_scope:mserialize.LogMessage)
   ))
-_sym_db.RegisterMessage(log_message)
+_sym_db.RegisterMessage(LogMessage)
 
 State = _reflection.GeneratedProtocolMessageType('State', (_message.Message,), dict(
   DESCRIPTOR = _STATE,

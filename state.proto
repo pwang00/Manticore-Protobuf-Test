@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package mserialize;
 
-message log_message{
-	string log_message = 1;
+message LogMessage{
+	string content = 1;
 }
 
 message State{

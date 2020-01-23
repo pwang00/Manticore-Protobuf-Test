@@ -20,17 +20,15 @@ def generate_states():
 
 def generate_messages():
 
-    message_array = LogMessage()
+    message_array = MessageList()
 
     for i in range(0, 10):
 
-        state = State()
-        state.id = random.randint(0, 10000)
-        state.type = State.READY if random.random() > 0.5 else State.BUSY
-        state.reason = "Task completed successfully."
-        state_array.states.extend([state])
+        message = LogMessage()
+        message.content = "Discovered {} paths in program".format(random.randint(10, 1000))
+        message_array.messages.extend([message])
 
-    return state_array
+    return message_array
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      
@@ -44,8 +42,9 @@ def main():
     while True: 
         # Establish connection with client.
 
-        read_sockets, write_sockets, error_sockets = select.select(socket_list, socket_list, [], 10)    
+        read_sockets, write_sockets, error_sockets = select.select(socket_list, socket_list, [], 5)    
         serialized_states = generate_states().SerializeToString() 
+        serialized_messages = generate_messages().SerializeToString()
         
         #print(read_sockets, write_sockets)
 
@@ -61,8 +60,14 @@ def main():
 
         if len(write_sockets):
             for sock in write_sockets:
-                time.sleep(random.randint(2, 15))
-                sock.send(serialized_states)
+                time.sleep(random.randint(2, 5))
+
+                if random.random() >= 0.5:
+                    print("Sending states")
+                    sock.send(serialized_states)
+                else:
+                    print("Sending messages")
+                    sock.send(serialized_messages)
 
 
 if __name__ == "__main__":

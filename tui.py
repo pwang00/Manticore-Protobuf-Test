@@ -56,12 +56,17 @@ class ManticoreTUI(npyscreen.NPSApp):
             try:
                 m = StateList()
                 m.ParseFromString(serialized)
+
+                if not len(m.states) > 0: 
+                    raise WrongTypeException
+
                 self.all_states += m.states
                 self._logger.info("Deserialized StateList")
-            except DecodeError:
-                m = LogMessage()
+
+            except WrongTypeException:
+                m = MessageList()
                 m.ParseFromString(serialized)
-                self.all_messages += [m.content]
+                self.all_messages += m.messages
                 self._logger.info("Deserialized LogMessage")
             except:
                 self._logger.info("Unable to deserialize message, malformed response")
@@ -69,27 +74,27 @@ class ManticoreTUI(npyscreen.NPSApp):
             self.MainForm.states_widget.entry_widget.values = self.all_states
             self.MainForm.messages_widget.entry_widget.values = self.all_messages
 
-        except (socket.error, Exception, EmptyRecvException) as e:
+        except (socket.error, Exception) as e:
             self._connected = False
 
         self.MainForm.connection_text.value = f"{'Connected' if self._connected else 'Not connected'}"
 
         if curr_width != self.prev_width or curr_height != self.prev_height:
-            self.all_states += [self.MainForm.states_widget.entry_widget.values]
-            self.all_messages += [self.MainForm.messages_widget.entry_widget.values]            
+            self.all_states += self.MainForm.states_widget.entry_widget.values
+            self.all_messages += self.MainForm.messages_widget.entry_widget.values            
             self._logger.info('Size changed')
             self.MainForm.erase()
             self.draw()
-
-        self.MainForm.DISPLAY()
+        else:    
+            self.MainForm.DISPLAY()
         
 
     def main(self):
         self.draw()
 
-class EmptyRecvException(BaseException):
+class WrongTypeException(BaseException):
     def __init__(self):
-        super().__init__("Received message of length 0")
+        super().__init__("Deserialized type is incorrect")
 
 class ManticoreMain(npyscreen.ActionForm):
 

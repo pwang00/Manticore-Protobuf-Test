@@ -14,17 +14,17 @@ message State{
         KILLED = 2;
     }
 
-    int32 id = 1; // state ID
-    StateType type = 2; // Type of state
-    string reason = 3; // Reason for execution stopping
-    int32 num_executing = 4; // number of executing instructions
-    int32 wait_time = 5; 
+    int32 id = 2; // state ID
+    StateType type = 3; // Type of state
+    string reason = 4; // Reason for execution stopping
+    int32 num_executing = 5; // number of executing instructions
+    int32 wait_time = 6; 
 }
 
 message StateList{
-    repeated State states = 1; 
+    repeated State states = 7; 
 }
 
 message MessageList{
-    repeated LogMessage messages = 1; 
+    repeated LogMessage messages = 8; 
 }

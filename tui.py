@@ -2,9 +2,11 @@ import npyscreen
 import curses
 import drawille
 import logging
-
-from state_pb2 import *
+import select
 import socket
+
+from google.protobuf.message import DecodeError
+from state_pb2 import *
 
 class ManticoreTUI(npyscreen.NPSApp):
 
@@ -16,7 +18,7 @@ class ManticoreTUI(npyscreen.NPSApp):
         self.all_states = []
         self.all_messages = []
         self._connected = False
-
+        
         logging.basicConfig(filename="mcore_tui_logs",
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -25,45 +27,42 @@ class ManticoreTUI(npyscreen.NPSApp):
 
         self._logger = logging.getLogger(__name__)
 
-        # Say we reserve port 1337 for manticore?
-        self._mcore_socket = socket.socket()
-        self._mcore_socket.settimeout(10)
+        self._mcore_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._mcore_socket.connect(("127.0.0.1", 1337))
+        self._connected = True
+        self._logger.info("Connected to manticore server")
 
     def draw(self):
         self.MainForm = ManticoreMain(parentApp=self, name="Manticore TUI")
         self.prev_width, self.prev_height = drawille.getTerminalSize()
-
         self.MainForm.edit()
 
     def while_waiting(self):
         curr_width, curr_height = drawille.getTerminalSize()
-
-        self.all_states += [self.MainForm.states_widget.entry_widget.values]
-        self.all_messages += [self.MainForm.messages_widget.entry_widget.values]
-
         serialized = None
-        deserialized_bytes = 0
-
+        self._socket_list = [self._mcore_socket]
         try:
             # Attempts to reestablish connection to manticore server
-            if not self._connected: 
-                self._mcore_socket.connect(("127.0.0.1", 1337))
-                self._connected = True
 
-            serialized = self._mcore_socket.recv(1024) # Serialized message
+            read_sockets, write_sockets, error_sockets = select.select(self._socket_list, self._socket_list, [], 0)
+            
+            if len(read_sockets):
+                serialized = self._mcore_socket.recv(1024)
+                self._logger.info("Received serialized of length {}".format(len(serialized)))
 
-            if self._connected is True and len(serialized) == 0:
-                raise EmptyRecvException
+            if len(write_sockets):
+                self._mcore_socket.send(b"Received states")
 
             try:
                 m = StateSet()
                 m.ParseFromString(serialized)
                 self.all_states += m.states
-                self._logger.info("Received serialized message")
-            except google.protobuf.message.DecodeError:
+                self._logger.info("Deserialized StateSet")
+            except DecodeError:
                 m = LogMessage()
                 m.ParseFromString(serialized)
                 self.all_messages += [m.content]
+                self._logger.info("Deserialized LogMessage")
             except:
                 self._logger.info("Unable to deserialize message, malformed response")
             
@@ -76,6 +75,8 @@ class ManticoreTUI(npyscreen.NPSApp):
         self.MainForm.connection_text.value = f"{'Connected' if self._connected else 'Not connected'}"
 
         if curr_width != self.prev_width or curr_height != self.prev_height:
+            self.all_states += [self.MainForm.states_widget.entry_widget.values]
+            self.all_messages += [self.MainForm.messages_widget.entry_widget.values]            
             self._logger.info('Size changed')
             self.MainForm.erase()
             self.draw()

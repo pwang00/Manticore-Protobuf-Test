@@ -15,14 +15,14 @@ def generate_test_states():
     Busy states are given non-default IDs (.id) , wait times (.wait_time), and number of
     executing instructions (.num_executing).
 
-    StateSet objects may be described as arrays of State objects, which may then be serialized
+    StateList objects may be described as arrays of State objects, which may then be serialized
     and deserialized via protobuf.
 
     """
 
-    busy_states = StateSet()
-    ready_states = StateSet()
-    killed_states = StateSet()
+    busy_states = StateList()
+    ready_states = StateList()
+    killed_states = StateList()
 
     for ready_id, busy_id, killed_id in map(lambda x: (x, x + 1, x + 2), range(0, 100, 3)):
         rstate = State()
@@ -100,9 +100,9 @@ class TestStateGeneration(unittest.TestCase):
 
         self.assertEqual(s, s2)
 
-    def test_StateSet(self):
+    def test_StateList(self):
         """ 
-        Initiates 3 StateSets using the function above and checks to see if State values 
+        Initiates 3 StateLists using the function above and checks to see if State values 
         are passed in and updated successfully
         """
         ready, busy, killed = generate_test_states()
@@ -128,9 +128,9 @@ class TestStateGeneration(unittest.TestCase):
             self.assertEqual(killed_state.reason, "Killed by user")
             self.assertEqual(killed_state.wait_time, 0)
 
-    def test_StateSet_Serialization(self):
+    def test_StateList_serialization(self):
         """ 
-        Tests to see if serialization/deserialization works properly for StateSet objects
+        Tests to see if serialization/deserialization works properly for StateList objects
         """
         ready, busy, killed = generate_test_states()
 
@@ -138,9 +138,9 @@ class TestStateGeneration(unittest.TestCase):
         busy_serialized = busy.SerializeToString()
         killed_serialized = killed.SerializeToString()
 
-        ready_deserialized = StateSet()
-        busy_deserialized = StateSet()
-        killed_deserialized = StateSet()
+        ready_deserialized = StateList()
+        busy_deserialized = StateList()
+        killed_deserialized = StateList()
         
         ready_deserialized.ParseFromString(ready_serialized) 
         busy_deserialized.ParseFromString(busy_serialized)
@@ -150,6 +150,56 @@ class TestStateGeneration(unittest.TestCase):
         self.assertEqual(busy_deserialized, busy)
         self.assertEqual(killed_deserialized, killed)
 
+    def test_LogMessage_creation(self):
+        """ 
+        Tests to see if instantiation works properly for LogMessage objects
+        """
+        message = LogMessage()
+        message.content = "AAAAAAAA"
+        self.assertEqual(message.content, "AAAAAAAA")
+
+    def test_MessageList_creation(self):
+        """ 
+        Tests to see if instantiation works properly for MessageList objects
+        """
+        message = LogMessage()
+        message.content = "AAAAAAAA"
+        message2 = LogMessage()
+        message2.content = "BBBBBBBB"
+
+        message_list = MessageList()
+        message_list.messages.extend([message])
+        message_list.messages.extend([message2])
+
+        self.assertEqual(message_list.messages[0], message)
+        self.assertEqual(message_list.messages[1], message2)
+
+    def test_LogMessage_serialization(self):
+        """ 
+        Tests to see if serialization/deserialization works properly for LogMessage objects
+        """
+        message = LogMessage()
+        message.content = "AAAAAAAA"
+        message2 = LogMessage()
+        message2.ParseFromString(message.SerializeToString())
+        self.assertEqual(message, message2)   
+
+    def test_MessageList_serialization(self):
+        """ 
+        Tests to see if serialization/deserialization works properly for MessageList objects
+        """
+        message = LogMessage()
+        message.content = "AAAAAAAA"
+        message2 = LogMessage()
+        message2.content = "BBBBBBBB"
+
+        message_list = MessageList()
+        message_list.messages.extend([message])
+        message_list.messages.extend([message2])        
+
+        message_list_deserialized = MessageList()
+        message_list_deserialized.ParseFromString(message_list.SerializeToString())
+        self.assertEqual(message_list_deserialized, message_list)
 
 if __name__ == "__main__":
     unittest.main()

@@ -21,6 +21,10 @@ message State{
     int32 wait_time = 5; 
 }
 
-message StateSet{
+message StateList{
     repeated State states = 1; 
+}
+
+message MessageList{
+    repeated LogMessage messages = 1; 
 }

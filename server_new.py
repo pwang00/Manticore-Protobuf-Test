@@ -6,7 +6,21 @@ import select
 
 def generate_states():
 
-    state_array = StateSet()
+    state_array = StateList()
+
+    for i in range(0, 10):
+
+        state = State()
+        state.id = random.randint(0, 10000)
+        state.type = State.READY if random.random() > 0.5 else State.BUSY
+        state.reason = "Task completed successfully."
+        state_array.states.extend([state])
+
+    return state_array
+
+def generate_messages():
+
+    message_array = LogMessage()
 
     for i in range(0, 10):
 

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='mserialize',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0bstate.proto\x12\nmserialize\"\x1d\n\nLogMessage\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\"\xa6\x01\n\x05State\x12\n\n\x02id\x18\x01 \x01(\x05\x12)\n\x04type\x18\x02 \x01(\x0e\x32\x1b.mserialize.State.StateType\x12\x0e\n\x06reason\x18\x03 \x01(\t\x12\x15\n\rnum_executing\x18\x04 \x01(\x05\x12\x11\n\twait_time\x18\x05 \x01(\x05\",\n\tStateType\x12\t\n\x05READY\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\n\n\x06KILLED\x10\x02\"-\n\x08StateSet\x12!\n\x06states\x18\x01 \x03(\x0b\x32\x11.mserialize.Stateb\x06proto3')
+  serialized_pb=_b('\n\x0bstate.proto\x12\nmserialize\"\x1d\n\nLogMessage\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\"\xa6\x01\n\x05State\x12\n\n\x02id\x18\x01 \x01(\x05\x12)\n\x04type\x18\x02 \x01(\x0e\x32\x1b.mserialize.State.StateType\x12\x0e\n\x06reason\x18\x03 \x01(\t\x12\x15\n\rnum_executing\x18\x04 \x01(\x05\x12\x11\n\twait_time\x18\x05 \x01(\x05\",\n\tStateType\x12\t\n\x05READY\x10\x00\x12\x08\n\x04\x42USY\x10\x01\x12\n\n\x06KILLED\x10\x02\".\n\tStateList\x12!\n\x06states\x18\x01 \x03(\x0b\x32\x11.mserialize.State\"7\n\x0bMessageList\x12(\n\x08messages\x18\x01 \x03(\x0b\x32\x16.mserialize.LogMessageb\x06proto3')
 )
 
 
@@ -142,15 +142,15 @@ _STATE = _descriptor.Descriptor(
 )
 
 
-_STATESET = _descriptor.Descriptor(
-  name='StateSet',
-  full_name='mserialize.StateSet',
+_STATELIST = _descriptor.Descriptor(
+  name='StateList',
+  full_name='mserialize.StateList',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='states', full_name='mserialize.StateSet.states', index=0,
+      name='states', full_name='mserialize.StateList.states', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -169,15 +169,48 @@ _STATESET = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=227,
-  serialized_end=272,
+  serialized_end=273,
+)
+
+
+_MESSAGELIST = _descriptor.Descriptor(
+  name='MessageList',
+  full_name='mserialize.MessageList',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='messages', full_name='mserialize.MessageList.messages', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=275,
+  serialized_end=330,
 )
 
 _STATE.fields_by_name['type'].enum_type = _STATE_STATETYPE
 _STATE_STATETYPE.containing_type = _STATE
-_STATESET.fields_by_name['states'].message_type = _STATE
+_STATELIST.fields_by_name['states'].message_type = _STATE
+_MESSAGELIST.fields_by_name['messages'].message_type = _LOGMESSAGE
 DESCRIPTOR.message_types_by_name['LogMessage'] = _LOGMESSAGE
 DESCRIPTOR.message_types_by_name['State'] = _STATE
-DESCRIPTOR.message_types_by_name['StateSet'] = _STATESET
+DESCRIPTOR.message_types_by_name['StateList'] = _STATELIST
+DESCRIPTOR.message_types_by_name['MessageList'] = _MESSAGELIST
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 LogMessage = _reflection.GeneratedProtocolMessageType('LogMessage', (_message.Message,), dict(
@@ -194,12 +227,19 @@ State = _reflection.GeneratedProtocolMessageType('State', (_message.Message,), d
   ))
 _sym_db.RegisterMessage(State)
 
-StateSet = _reflection.GeneratedProtocolMessageType('StateSet', (_message.Message,), dict(
-  DESCRIPTOR = _STATESET,
+StateList = _reflection.GeneratedProtocolMessageType('StateList', (_message.Message,), dict(
+  DESCRIPTOR = _STATELIST,
   __module__ = 'state_pb2'
-  # @@protoc_insertion_point(class_scope:mserialize.StateSet)
+  # @@protoc_insertion_point(class_scope:mserialize.StateList)
   ))
-_sym_db.RegisterMessage(StateSet)
+_sym_db.RegisterMessage(StateList)
+
+MessageList = _reflection.GeneratedProtocolMessageType('MessageList', (_message.Message,), dict(
+  DESCRIPTOR = _MESSAGELIST,
+  __module__ = 'state_pb2'
+  # @@protoc_insertion_point(class_scope:mserialize.MessageList)
+  ))
+_sym_db.RegisterMessage(MessageList)
 
 
 # @@protoc_insertion_point(module_scope)

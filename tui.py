@@ -54,10 +54,10 @@ class ManticoreTUI(npyscreen.NPSApp):
                 self._mcore_socket.send(b"Received states")
 
             try:
-                m = StateSet()
+                m = StateList()
                 m.ParseFromString(serialized)
                 self.all_states += m.states
-                self._logger.info("Deserialized StateSet")
+                self._logger.info("Deserialized StateList")
             except DecodeError:
                 m = LogMessage()
                 m.ParseFromString(serialized)

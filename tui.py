@@ -7,6 +7,7 @@ import socket
 
 from google.protobuf.message import DecodeError
 from state_pb2 import *
+from format_message import *
 
 class ManticoreTUI(npyscreen.NPSApp):
 
@@ -28,8 +29,6 @@ class ManticoreTUI(npyscreen.NPSApp):
         self._logger = logging.getLogger(__name__)
 
         self._mcore_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._mcore_socket.connect(("127.0.0.1", 1337))
-        self._connected = True
         self._logger.info("Connected to manticore server")
 
     def draw(self):
@@ -40,10 +39,14 @@ class ManticoreTUI(npyscreen.NPSApp):
     def while_waiting(self):
         curr_width, curr_height = drawille.getTerminalSize()
         serialized = None
-        self._socket_list = [self._mcore_socket]
+
         try:
             # Attempts to reestablish connection to manticore server
-
+            if not self._connected:
+                self._mcore_socket.connect(("127.0.0.1", 1337))
+                self._connected = True
+            
+            self._socket_list = [self._mcore_socket]                
             read_sockets, write_sockets, error_sockets = select.select(self._socket_list, self._socket_list, [], 0)
             
             if len(read_sockets):
@@ -58,12 +61,12 @@ class ManticoreTUI(npyscreen.NPSApp):
                 m.ParseFromString(serialized)
 
                 if not len(m.states) > 0: 
-                    raise WrongTypeException
+                    raise TypeError
 
                 self.all_states += m.states
                 self._logger.info("Deserialized StateList")
 
-            except WrongTypeException:
+            except TypeError:
                 m = MessageList()
                 m.ParseFromString(serialized)
                 self.all_messages += m.messages
@@ -91,10 +94,6 @@ class ManticoreTUI(npyscreen.NPSApp):
 
     def main(self):
         self.draw()
-
-class WrongTypeException(BaseException):
-    def __init__(self):
-        super().__init__("Deserialized type is incorrect")
 
 class ManticoreMain(npyscreen.ActionForm):
 

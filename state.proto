@@ -13,7 +13,7 @@ message State{
         BUSY = 1;
         KILLED = 2;
     }
-
+    
     int32 id = 2; // state ID
     StateType type = 3; // Type of state
     string reason = 4; // Reason for execution stopping

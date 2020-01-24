@@ -2,7 +2,7 @@ from state_pb2 import *
 
 def format_states(deserialized):
 	updated = []
-	template = "State id: {}\t Type: {}\t Status: "
+	template = "State id: {}\t\t Type: {}\t\t Status: "
 
 	types = {0: "READY", 1: "BUSY", 2: "KILLED"}
 	for state in deserialized.states:

@@ -5,9 +5,8 @@ import logging
 import select
 import socket
 
-from google.protobuf.message import DecodeError
 from state_pb2 import *
-from format_message import *
+from format_states import *
 
 class ManticoreTUI(npyscreen.NPSApp):
 
@@ -18,7 +17,6 @@ class ManticoreTUI(npyscreen.NPSApp):
         self.keypress_timeout_default = 1
         self.all_states = []
         self.all_messages = []
-        self._connected = False
         
         logging.basicConfig(filename="mcore_tui_logs",
                             filemode='a',
@@ -30,6 +28,8 @@ class ManticoreTUI(npyscreen.NPSApp):
 
         self._mcore_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._logger.info("Connected to manticore server")
+        self._mcore_socket.connect(("127.0.0.1", 1337))
+        self._connected = True  
 
     def draw(self):
         self.MainForm = ManticoreMain(parentApp=self, name="Manticore TUI")
@@ -39,14 +39,11 @@ class ManticoreTUI(npyscreen.NPSApp):
     def while_waiting(self):
         curr_width, curr_height = drawille.getTerminalSize()
         serialized = None
-
+        
+        self._socket_list = [self._mcore_socket]  
+        
         try:
-            # Attempts to reestablish connection to manticore server
-            if not self._connected:
-                self._mcore_socket.connect(("127.0.0.1", 1337))
-                self._connected = True
-            
-            self._socket_list = [self._mcore_socket]                
+            # Attempts to reestablish connection to manticore server       
             read_sockets, write_sockets, error_sockets = select.select(self._socket_list, self._socket_list, [], 0)
             
             if len(read_sockets):
@@ -63,7 +60,7 @@ class ManticoreTUI(npyscreen.NPSApp):
                 if not len(m.states) > 0: 
                     raise TypeError
 
-                self.all_states += m.states
+                self.all_states += format_states(m)
                 self._logger.info("Deserialized StateList")
 
             except TypeError:
@@ -77,8 +74,11 @@ class ManticoreTUI(npyscreen.NPSApp):
             self.MainForm.states_widget.entry_widget.values = self.all_states
             self.MainForm.messages_widget.entry_widget.values = self.all_messages
 
-        except (socket.error, Exception) as e:
+        except socket.error:
             self._connected = False
+
+        except:
+            pass
 
         self.MainForm.connection_text.value = f"{'Connected' if self._connected else 'Not connected'}"
 

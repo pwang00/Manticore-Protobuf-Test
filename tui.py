@@ -66,11 +66,11 @@ class ManticoreTUI(npyscreen.NPSApp):
             except TypeError:
                 m = MessageList()
                 m.ParseFromString(serialized)
-                self.all_messages += m.messages
+                self.all_messages += format_messages(m)
                 self._logger.info("Deserialized LogMessage")
             except:
                 self._logger.info("Unable to deserialize message, malformed response")
-            
+
             self.MainForm.states_widget.entry_widget.values = self.all_states
             self.MainForm.messages_widget.entry_widget.values = self.all_messages
 

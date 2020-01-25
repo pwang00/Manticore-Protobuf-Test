@@ -60,7 +60,7 @@ def main():
 
         if len(write_sockets):
             for sock in write_sockets:
-                time.sleep(random.randint(2, 5))
+                time.sleep(random.randint(2, 5) + 0.01)
 
                 if random.random() >= 0.5:
                     print("Sending states")

@@ -4,9 +4,11 @@ import drawille
 import logging
 import select
 import socket
-
+import warnings
 from state_pb2 import *
 from format_states import *
+
+warnings.filterwarnings("ignore")
 
 class ManticoreTUI(npyscreen.NPSApp):
 
@@ -39,9 +41,10 @@ class ManticoreTUI(npyscreen.NPSApp):
     def while_waiting(self):
         curr_width, curr_height = drawille.getTerminalSize()
         serialized = None
-        
+        changed = False # Set to true if any data is received that isn't length 0
+
         self._socket_list = [self._mcore_socket]  
-        
+
         try:
             # Attempts to reestablish connection to manticore server       
             read_sockets, write_sockets, error_sockets = select.select(self._socket_list, self._socket_list, [], 0)
@@ -57,17 +60,16 @@ class ManticoreTUI(npyscreen.NPSApp):
                 m = StateList()
                 m.ParseFromString(serialized)
 
-                if not len(m.states) > 0: 
-                    raise TypeError
+                if len(m.states) > 0: 
+                    self.all_states += format_states(m)
+                    self._logger.info("Deserialized StateList")
 
-                self.all_states += format_states(m)
-                self._logger.info("Deserialized StateList")
+                else:
+                    m = MessageList()
+                    m.ParseFromString(serialized)
+                    self.all_messages += format_messages(m)
+                    self._logger.info("Deserialized LogMessage")
 
-            except TypeError:
-                m = MessageList()
-                m.ParseFromString(serialized)
-                self.all_messages += format_messages(m)
-                self._logger.info("Deserialized LogMessage")
             except:
                 self._logger.info("Unable to deserialize message, malformed response")
 
@@ -88,10 +90,12 @@ class ManticoreTUI(npyscreen.NPSApp):
             self._logger.info('Size changed')
             self.MainForm.erase()
             self.draw()
-        else:    
             self.MainForm.DISPLAY()
         
-
+        self.MainForm.states_widget.display()
+        self.MainForm.messages_widget.display()
+        self.MainForm.connection_text.display()
+        
     def main(self):
         self.draw()
 

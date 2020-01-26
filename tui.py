@@ -27,11 +27,7 @@ class ManticoreTUI(npyscreen.NPSApp):
                             level=logging.DEBUG)
 
         self._logger = logging.getLogger(__name__)
-
-        self._mcore_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._logger.info("Connected to manticore server")
-        self._mcore_socket.connect(("127.0.0.1", 1337))
-        self._connected = True  
+        self._connected = False
 
     def draw(self):
         self.MainForm = ManticoreMain(parentApp=self, name="Manticore TUI")
@@ -43,9 +39,15 @@ class ManticoreTUI(npyscreen.NPSApp):
         serialized = None
         changed = False # Set to true if any data is received that isn't length 0
 
-        self._socket_list = [self._mcore_socket]  
-
         try:
+
+            if not self._connected:
+                self._mcore_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self._logger.info("Connected to manticore server")
+                self._mcore_socket.connect(("127.0.0.1", 1337))
+                self._connected = True 
+                self._socket_list = [self._mcore_socket]  
+
             # Attempts to reestablish connection to manticore server       
             read_sockets, write_sockets, error_sockets = select.select(self._socket_list, self._socket_list, [], 0)
             

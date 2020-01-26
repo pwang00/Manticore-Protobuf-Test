@@ -5,21 +5,21 @@ import logging
 import select
 import socket
 import warnings
+
 from state_pb2 import *
 from format_states import *
+from google.protobuf.message import DecodeError
 
 warnings.filterwarnings("ignore")
 
 class ManticoreTUI(npyscreen.NPSApp):
 
     def __init__(self):
-        self.MainForm = None
-        self.prev_width = None
-        self.prev_height = None
-        self.keypress_timeout_default = 1
+        # List of all received states and messages
         self.all_states = []
         self.all_messages = []
-        
+
+        self.keypress_timeout_default = 1
         logging.basicConfig(filename="mcore_tui_logs",
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -30,17 +30,22 @@ class ManticoreTUI(npyscreen.NPSApp):
         self._connected = False
 
     def draw(self):
+        # Draws the main TUI form with all sub-widgets and allows for user interaction
         self.MainForm = ManticoreMain(parentApp=self, name="Manticore TUI")
         self.prev_width, self.prev_height = drawille.getTerminalSize()
         self.MainForm.edit()
 
     def while_waiting(self):
+        # Saves current terminal size to determine whether or not a redraw
+        # of the TUI is necessary
         curr_width, curr_height = drawille.getTerminalSize()
+
+        # Serialized data to be received from manticore server
         serialized = None
-        changed = False # Set to true if any data is received that isn't length 0
 
         try:
 
+            # Attempts to (re)connect to manticore server 
             if not self._connected:
                 self._mcore_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self._logger.info("Connected to manticore server")
@@ -48,16 +53,26 @@ class ManticoreTUI(npyscreen.NPSApp):
                 self._connected = True 
                 self._socket_list = [self._mcore_socket]  
 
-            # Attempts to reestablish connection to manticore server       
+            # Uses Python select module with timeout 0 to determine whether or not sockets have any data
+            # To be read from or written to to prevent client send/recv operations from blocking.
             read_sockets, write_sockets, error_sockets = select.select(self._socket_list, self._socket_list, [], 0)
             
+
+            # If there are sockets available for reading, deserialize data
             if len(read_sockets):
                 serialized = self._mcore_socket.recv(1024)
                 self._logger.info("Received serialized of length {}".format(len(serialized)))
 
+            # If there are sockets available for writing, send an ACK to server
             if len(write_sockets):
                 self._mcore_socket.send(b"Received states")
 
+            # Protobuf can't directly determine the type of data being received, so we use the following workaround
+            # We first try to deserialize data as a StateList object and check its .states attribute
+            # Since in practice a StateList must contain at least one state, we know that if len(.states) is 0
+            # Then the deserialized message can't be a StateList.  We then try deserializing into a MessageList object
+            # and check its .messages attribute.  If len(.messages) is empty, then we conclude that the data sent
+            # was corrupted or incorrectly serialized.
             try:
                 m = StateList()
                 m.ParseFromString(serialized)
@@ -72,28 +87,37 @@ class ManticoreTUI(npyscreen.NPSApp):
                     self.all_messages += format_messages(m)
                     self._logger.info("Deserialized LogMessage")
 
-            except:
+                    if len(m.messages) == 0:
+                        raise TypeError
+
+            except DecodeError:
                 self._logger.info("Unable to deserialize message, malformed response")
 
-            self.MainForm.states_widget.entry_widget.values = self.all_states
-            self.MainForm.messages_widget.entry_widget.values = self.all_messages
-
+        # Detect server disconnect
         except socket.error:
             self._connected = False
 
+        # Handle any other exceptions
         except:
             pass
 
         self.MainForm.connection_text.value = f"{'Connected' if self._connected else 'Not connected'}"
 
-        if curr_width != self.prev_width or curr_height != self.prev_height:
-            self.all_states += self.MainForm.states_widget.entry_widget.values
-            self.all_messages += self.MainForm.messages_widget.entry_widget.values            
+        if curr_width != self.prev_width or curr_height != self.prev_height:        
             self._logger.info('Size changed')
             self.MainForm.erase()
             self.draw()
             self.MainForm.DISPLAY()
-        
+
+        # Updates the list of states and messages to be displayed 
+        # Normally appending to the list of values during while_waiting() would work but we have to
+        # Consider the scenario where the user resizes the terminal, in which case 
+        # .erase() is called and all widgets lose their previous values upon being redrawn.
+        # So we maintain a separate list of all currently received states and messages (all_states, all_messages)
+        # and reassign Each widget's list of states / messages instead.
+
+        self.MainForm.states_widget.entry_widget.values = self.all_states
+        self.MainForm.messages_widget.entry_widget.values = self.all_messages        
         self.MainForm.states_widget.display()
         self.MainForm.messages_widget.display()
         self.MainForm.connection_text.display()

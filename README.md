@@ -7,6 +7,7 @@
 # TUI demo
 
 * Open two separate terminal windows
+* Run `pip3 install -r requirements.txt`
 * Run `python3 server_new.py` in one window
 * Run `python3 tui.py` in another
 * Verify that after a certain amount of time, both states and messages are received.

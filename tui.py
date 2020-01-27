@@ -128,6 +128,7 @@ class ManticoreTUI(npyscreen.NPSApp):
 class ManticoreMain(npyscreen.ActionForm):
 
     def create(self):
+        # Draws a form with a widget for states, log messages, and connection status
         column_height = drawille.getTerminalSize()[::-1][0]
 
         self.states_widget = self.add(

@@ -8,8 +8,12 @@
 
 * Open two separate terminal windows
 * Run `python3 server_new.py` in one window
-* Run `python3 tui.py` in another.
+* Run `python3 tui.py` in another
 * Verify that after a certain amount of time, both states and messages are received.
+
+# TUI Features
+
+* Detect when disconnect has happened and update connection status, and allow for reconnecting to server
 
 # Known issues
 

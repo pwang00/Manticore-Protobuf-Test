@@ -18,5 +18,5 @@
 # TODO
 
 * While the flashing issue has been fixed, there's no guarantee that throwing an exception won't accidentally mess up the TUI text.  As such, adding a hotkey to manually redraw the TUI may prove to be useful.
-
-
+* Allow for users to configure logging levels
+* Link to `mcorepv`

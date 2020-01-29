@@ -117,7 +117,11 @@ class ManticoreTUI(npyscreen.NPSApp):
         # and reassign Each widget's list of states / messages instead.
 
         self.MainForm.states_widget.entry_widget.values = self.all_states
-        self.MainForm.messages_widget.entry_widget.values = self.all_messages        
+        self.MainForm.messages_widget.entry_widget.values = self.all_messages
+        
+        self.MainForm.states_widget.name = f"Internal States ({len(self.MainForm.states_widget.values)} received)"
+        self.MainForm.messages_widget.name = f"Log Messages ({len(self.MainForm.messages_widget.values)} received)"        
+        
         self.MainForm.states_widget.display()
         self.MainForm.messages_widget.display()
         self.MainForm.connection_text.display()
@@ -133,10 +137,11 @@ class ManticoreMain(npyscreen.ActionForm):
 
         self.states_widget = self.add(
                 npyscreen.BoxTitle,
-                name = "Internal States",
+                name = "Internal States ({} received)",
                 max_height = column_height // 3,
                 editable=True
         )
+
 
         self.messages_widget = self.add(
                 npyscreen.BoxTitle,
@@ -148,7 +153,6 @@ class ManticoreMain(npyscreen.ActionForm):
         self.connection_text = self.add_widget(npyscreen.TitleText, 
             name = f"Connection Status: ",
             editable = False)
-
 
     def on_ok(self):
         exit()

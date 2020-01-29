@@ -3,7 +3,7 @@ syntax = "proto3";
 package mserialize;
 
 message LogMessage{
-	string content = 1;
+    string content = 1;
 }
 
 message State{
@@ -12,6 +12,7 @@ message State{
         READY = 0;
         BUSY = 1;
         KILLED = 2;
+        TERMINATED = 3;
     }
     
     int32 id = 2; // state ID
